@@ -41,7 +41,6 @@ exports.newTask = async (req, res, next) => {
 };
 
 exports.getTasks = async (req, res, next) => {
-  console.log("object");
   try {
     const { boardId, userId } = req.query;
 
@@ -51,10 +50,61 @@ exports.getTasks = async (req, res, next) => {
     if (userId) query.userId = userId;
 
     const tasks = await Task.find(query).sort({ createdAt: -1 });
-    console.log(tasks);
     res.status(200).json({ tasks });
   } catch (error) {
     console.error("Error fetching tasks:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+exports.updateTask = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    // Validate task ID
+    if (!id) {
+      return res.status(400).json({ message: "Task ID is required." });
+    }
+
+    // Update task
+    const updatedTask = await Task.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedTask) {
+      return res.status(404).json({ message: "Task not found." });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Task updated successfully", task: updatedTask });
+  } catch (error) {
+    console.error("Error updating task:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+exports.deleteTask = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Validate task ID
+    if (!id) {
+      return res.status(400).json({ message: "Task ID is required." });
+    }
+
+    // Delete task
+    const deletedTask = await Task.findByIdAndDelete(id);
+
+    if (!deletedTask) {
+      return res.status(404).json({ message: "Task not found." });
+    }
+
+    res.status(200).json({ message: "Task deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting task:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
