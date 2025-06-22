@@ -1,4 +1,5 @@
 const Board = require("../models/Board");
+const Task = require("../models/Task");
 
 exports.addBoard = async (req, res, next) => {
   const { name } = req.body;
@@ -65,6 +66,14 @@ exports.deleteBoard = async (req, res, next) => {
     if (!board) {
       return res.status(404).json({ message: "Board not found" });
     }
+
+    // Optionally, you can also delete associated tasks if needed
+    await Task.deleteMany({ boardId: req.params.id });
+    // Assuming you have a Task model and want to delete tasks associated with this board
+    res.status(200).json({ message: "Tasks deleted successfully" });
+    console.log("Board deleted successfully:", board);
+    // Return a success response
+
     res.status(200).json({ message: "Board deleted successfully" });
   } catch (error) {
     console.error("Error deleting board:", error);
