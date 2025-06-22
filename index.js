@@ -9,9 +9,14 @@ const TaskRoute = require("./routes/Tasks.js");
 const DB = require("./database/ConnectDB.js");
 const cors = require("cors");
 
+const corsOptions = {
+  origin: "*", // Or '*' for development (not safe for prod)
+  credentials: true,
+};
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors(corsOptions));
 
 app.use(UserRoute);
 app.use(BoardRoute);
